@@ -74,7 +74,18 @@ const Checkout = ({
           <Modal.Header>Dados da corrida</Modal.Header>
           <Modal.Body>
             <VStack space={4}>
-              {selected.data.status === 'Aberta' && (
+              {selected.data.aceite === null && (
+                <HStack 
+                  alignItems="center" 
+                  justifyContent="center" 
+                  flexDirection={'column'}
+                  background='red.700'
+                  padding='1'
+                >
+                  <Text fontWeight="medium" color='white'>O motorista ainda não aceitou</Text>
+                </HStack>
+              )}
+              {selected.data.status === 'Aberta' && selected.data.aceite === true && (
                 <HStack 
                   alignItems="center" 
                   justifyContent="center" 
@@ -85,7 +96,7 @@ const Checkout = ({
                   <Text fontWeight="medium" color='white'>Em andamento</Text>
                 </HStack>
               )}
-              {selected.data.status === 'Fechada' && (
+              {selected.data.status === 'Fechada' && selected.data.aceite === true && (
                 <HStack 
                   alignItems="center" 
                   justifyContent="center" 
@@ -117,11 +128,11 @@ const Checkout = ({
               </HStack> */}
               <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Veículo</Text>
-                <Text color="blueGray.400">{selected.data.dadosCorrida.carros.modelo}-{selected.data.dadosCorrida.carros.marca}</Text>
+                <Text color="blueGray.400">{selected.data.dadosCorrida.veiculos.modelo}-{selected.data.dadosCorrida.veiculos.marca}</Text>
               </HStack>
               <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Placa</Text>
-                <Text color="blueGray.400">{selected.data.dadosCorrida.carros.placa}</Text>
+                <Text color="blueGray.400">{selected.data.dadosCorrida.veiculos.placa}</Text>
               </HStack>
               <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Kilometros</Text>
@@ -141,7 +152,7 @@ const Checkout = ({
               </HStack> */}
             </VStack>
           </Modal.Body>
-          {selected.data.status === 'Aberta' && (
+          {selected.data.status === 'Aberta' && selected.data.aceite === true &&  (
             <Modal.Footer>
               <Button 
                 style={{

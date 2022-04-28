@@ -241,6 +241,7 @@ export const AuthProvider = ({children}) => {
 
     // buscar hitorico de conversas no chat
     async function historicoCorridas(id){
+        console.log('idcliente ', id)
         setLoadi(true)
         try {
             const q = query(collection(db, "order"), where('idCliente', '==', id));
@@ -250,7 +251,7 @@ export const AuthProvider = ({children}) => {
                 console.log(doc.id, ' => historicoCorridas ', doc.data());
                 dadosHistorico.push({id: doc.id, data: doc.data()})
             });
-            setHistorico(dadosHistorico)
+            setHistorico(dadosHistorico.length === 0 ? null : dadosHistorico)
             setLoadi(false)
     
         } catch (error) {
@@ -718,6 +719,7 @@ export const AuthProvider = ({children}) => {
     }
 
     async function signInSocial(){
+        console.log('Logando ....')
         const CLIENT_ID = '741352224001-9b8pjmsf756mtitpjdfes7092310ar0j.apps.googleusercontent.com';
         const REDIRECT_URI = 'https://auth.expo.io/@nerialdo/eztaxi';
         const RESPONSE_TYPE = 'token';

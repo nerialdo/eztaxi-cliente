@@ -43,7 +43,7 @@ const Historico = ({ navigation }) => {
   const { register, formState: { errors }, handleSubmit, control, setValue, watch } = useForm();
 
   useEffect(() => {
-    // console.log('historico ', historico, typeof historico)
+    console.log('historico ', historico, typeof historico)
     historicoCorridas(user.id)
   }, []);
 
@@ -131,6 +131,23 @@ const Historico = ({ navigation }) => {
     return new Date(userDate.seconds*1000).toLocaleDateString()
   }
 
+  function definirVeiculo(item){
+    for (let i = 0; i < item.length; i++) {
+      const element = item[i];
+      console.log('Veiculo ', element)
+      if(element.status){
+        return {
+          ano: element.ano,
+          categoria: element.categoria,
+          marca: element.marca,
+          modelo: element.modelo,
+          placa: element.placa,
+          tipo: element.tipo
+        }
+      }
+    }
+  }
+
  
   return (
     <SafeAreaView style={styles.container}>
@@ -171,49 +188,70 @@ const Historico = ({ navigation }) => {
         </LinearGradient>
         <View style={styles.containerHistorico}>
             <View style={styles.mainHitorico}>
-              <FlatList 
-                style={{
-                  flex: 1
-                }}
-                data={historico} 
-                renderItem={({item}) => 
-                  <Box borderBottomWidth="1" _dark={{borderColor: "gray.600"}} borderColor="coolGray.200" pl="4" pr="5" py="2">
-                      <TouchableOpacity
-                         onPress={() => {
-                          setSelected(item)
-                          setShowModal(!showModal)
-                         }}
-                      >
-                        <HStack space={3} justifyContent="space-between" alignItems={'center'}>
-                          <Avatar size="48px" source={{
-                            uri: item.data.dadosCorrida.picture
-                          }} />
-                          <VStack>
-                            <Text>
-                              {item.data.dadosCorrida.carros.categoria}
+              {historico && (
+                <FlatList 
+                  style={{
+                    flex: 1
+                  }}
+                  data={historico} 
+                  renderItem={({item}) => 
+                    <Box borderBottomWidth="1" _dark={{borderColor: "gray.600"}} borderColor="coolGray.200" pl="4" pr="5" py="2">
+                        <TouchableOpacity
+                           onPress={() => {
+                            setSelected(item)
+                            setShowModal(!showModal)
+                           }}
+                        >
+                          <HStack space={3} justifyContent="space-between" alignItems={'center'}>
+                            <Avatar size="48px" source={{
+                              uri: item.data.dadosCorrida.picture
+                            }} />
+                            <VStack>
+                              <Text>
+                                {definirVeiculo(item.data.dadosCorrida.veiculos).categoria}
+                              </Text>
+                              <Text style={{fontWeight: 'bold'}}>
+                                {definirVeiculo(item.data.dadosCorrida.veiculos).modelo}{'/'}
+                                {definirVeiculo(item.data.dadosCorrida.veiculos).placa}
+                              </Text>
+                              {/* <Text style={{overflow: 'hidden', width: 250}} color="coolGray.600" _dark={{color: "warmGray.200"}} numberOfLines={1}>
+                                De: {item.data.yourLocation}
+                              </Text>
+                              <Text style={{overflow: 'hidden', width: 150}} color="coolGray.600" _dark={{color: "warmGray.200"}}>
+                                Para: {item.data.destination.title_secondary}
+                              </Text> */}
+                            </VStack>
+                            <Spacer />
+                            <Text fontSize="xs" _dark={{color: "warmGray.50"}} color="coolGray.800" alignSelf="flex-start">
+                              {/* {format(parse(item.data.data), 'dd/MM/yyyy')} */}
+                              {convertDate(item.data.data)}
                             </Text>
-                            <Text style={{fontWeight: 'bold'}}>
-                              {item.data.dadosCorrida.carros.modelo}{'/'}
-                              {item.data.dadosCorrida.carros.placa}
-                            </Text>
-                            {/* <Text style={{overflow: 'hidden', width: 250}} color="coolGray.600" _dark={{color: "warmGray.200"}} numberOfLines={1}>
-                              De: {item.data.yourLocation}
-                            </Text>
-                            <Text style={{overflow: 'hidden', width: 150}} color="coolGray.600" _dark={{color: "warmGray.200"}}>
-                              Para: {item.data.destination.title_secondary}
-                            </Text> */}
-                          </VStack>
-                          <Spacer />
-                          <Text fontSize="xs" _dark={{color: "warmGray.50"}} color="coolGray.800" alignSelf="flex-start">
-                            {/* {format(parse(item.data.data), 'dd/MM/yyyy')} */}
-                            {convertDate(item.data.data)}
-                          </Text>
-                        </HStack>
-                      </TouchableOpacity>
-                  </Box>
-                }  
-                keyExtractor={item => item.id} 
-              />
+                          </HStack>
+                          {item.data.aceite === null && (
+                            <HStack space={3}marginTop={1} padding={1} justifyContent="center" alignItems={'center'}>
+                              <Text>
+                                Aguardando motorista acaitar
+                              </Text>
+                            </HStack>
+                          )}
+                        </TouchableOpacity>
+                    </Box>
+                  }  
+                  keyExtractor={item => item.id} 
+                />
+              )}
+              {!historico && (
+                <View style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <Text>Não possui historico</Text>
+                </View>
+              )}
             </View>
         </View>
       </View>

@@ -25,13 +25,13 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
 
 
   function valorViagem(km, tarifa){
-    console.log('tarifa', tarifa)
     var kmString = km.toString();
     // var arr = kmString.split('.'); 
     var arr = kmString.split('.'); 
     var km = arr[0];
     var m = arr[1]
     
+    console.log('tarifa', tarifa, kmString, arr)
 
     var kmInteger = parseInt(km)
     var mInteger = parseInt(m)
@@ -43,10 +43,27 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
     var valorMetro = tarifa.km / 1000
     var totalValorM = mInteger * valorMetro
 
-    var totalCorrida = totalValorKm + totalValorM + tarifa.minimo
+    var totalCorrida = totalValorKm + totalValorM + parseFloat(tarifa.minimo)
 
     console.log('arr ', totalValorKm, totalValorM, totalCorrida)
     return totalCorrida
+  }
+
+  function definirVeiculo(item){
+    for (let i = 0; i < item.length; i++) {
+      const element = item[i];
+      console.log('Veiculo ', element)
+      if(element.status){
+        return {
+          ano: element.ano,
+          categoria: element.categoria,
+          marca: element.marca,
+          modelo: element.modelo,
+          placa: element.placa,
+          tipo: element.tipo
+        }
+      }
+    }
   }
 
   function moedaBR(amount, decimalCount = 2, decimal = ",", thousands = "."){
@@ -89,6 +106,7 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
         {motoristaLivre.map((item, key) => (
           <TouchableOpacity 
             onPress={() => {
+              console.log('item item item ', item)
               setSelected(item)
               setValor(valorViagem(distancia, item.tarifa))
             }} 
@@ -107,11 +125,12 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
             <View style={styles.containerDetalhes}>
               <View style={styles.detalhesCarro}>
                 <View style={styles.subDetalhesCarro}>
-                  <Text style={{fontWeight:'bold', fontSize: 13}}>{item.carros.categoria} </Text><Text style={{fontWeight:'bold', fontSize: 19}}>{moedaBR(valorViagem(distancia, item.tarifa))}</Text>
+                  <Text style={{fontWeight:'bold', fontSize: 13}}>{definirVeiculo(item.veiculos).categoria} </Text><Text style={{fontWeight:'bold', fontSize: 19}}>{moedaBR(valorViagem(distancia, item.tarifa))}</Text>
                 </View>
+
                 <View style={styles.subDetalhesCarro}>
                   {/* <Text style={{fontWeight:'bold'}}>Honda Civic </Text> */}
-                  <Text>{item.carros.marca} {item.carros.modelo} - {item.carros.placa}</Text>
+                  <Text>{definirVeiculo(item.veiculos).marca} {definirVeiculo(item.veiculos).modelo} - {definirVeiculo(item.veiculos).placa}</Text>
                   {/* <Icon
                     as={Ionicons}
                     name="star"
@@ -213,7 +232,7 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
                 yourLocation
               )
             }}>
-              <RequestButtonText>Confirmar {selected.carros.categoria}</RequestButtonText>
+              <RequestButtonText>Confirmar {definirVeiculo(selected.veiculos).categoria}</RequestButtonText>
             </RequestButton>
         </View>
       )}

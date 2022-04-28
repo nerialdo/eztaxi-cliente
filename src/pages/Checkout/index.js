@@ -89,11 +89,11 @@ const Checkout = ({
               </HStack> */}
               <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Veículo</Text>
-                <Text color="blueGray.400">{dadosCorrida.carros.modelo}-{dadosCorrida.carros.marca}</Text>
+                <Text color="blueGray.400">{dadosCorrida.veiculos.modelo}-{dadosCorrida.veiculos.marca}</Text>
               </HStack>
               <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Placa</Text>
-                <Text color="blueGray.400">{dadosCorrida.carros.placa}</Text>
+                <Text color="blueGray.400">{dadosCorrida.veiculos.placa}</Text>
               </HStack>
               <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Kilometros</Text>

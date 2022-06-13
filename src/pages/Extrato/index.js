@@ -15,21 +15,21 @@ import {
   NativeBaseProvider,
 } from "native-base"
 import {useAuth} from '../../contexts/auth';
-import { initializeApp } from 'firebase/app';
+// import { initializeApp } from 'firebase/app';
 // import { collection, query, where, addDoc, setDoc, getDocs, getFirestore, doc  } from "firebase/firestore";
-import { collection, query, where, orderBy, getDocs, getFirestore } from "firebase/firestore";
-import { format, parseISO, formatISO } from 'date-fns'
+// import { collection, query, where, orderBy, getDocs, getFirestore } from "firebase/firestore";
+// import { format, parseISO, formatISO } from 'date-fns'
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBNGkmf5kWpFb_w6xFzqAEhOCQC5ND5IUk",
-  authDomain: "whatsapp-82efa.firebaseapp.com",
-  databaseURL: "https://whatsapp-82efa.firebaseio.com",
-  projectId: "whatsapp-82efa",
-  storageBucket: "whatsapp-82efa.appspot.com",
-  messagingSenderId: "1056876714892",
-  appId: "1:1056876714892:web:3dcb8a67476a505938d4a9"
-};
-initializeApp(firebaseConfig);
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD3vi63BxmzuxWXrpu_zUMUAwQDD2NoD_w",
+//   authDomain: "extaxi-50c37.firebaseapp.com",
+//   projectId: "extaxi-50c37",
+//   storageBucket: "extaxi-50c37.appspot.com",
+//   messagingSenderId: "1054676875897",
+//   appId: "1:1054676875897:web:6cbbc168db79a2df4fb2a8",
+//   measurementId: "G-5HF9XBLCK7"
+// };
+// initializeApp(firebaseConfig);
 
 
 const Extrato = ({ navigation }) => {
@@ -43,31 +43,31 @@ const Extrato = ({ navigation }) => {
   }, []);
 
   async function listarExtrato(){
-    // setLoading(true)
-    arrayEstrato.push()
-    const q = query(collection(db, "bilhetesVendidos"), where("cpfVendendor", "==", user.cpf), orderBy("numeroBilhete", 'asc'));
+    // // setLoading(true)
+    // arrayEstrato.push()
+    // const q = query(collection(db, "bilhetesVendidos"), where("cpfVendendor", "==", user.cpf), orderBy("numeroBilhete", 'asc'));
 
-    const querySnapshot = await getDocs(q);
-    // console.log('querySnapshot', querySnapshot.si)
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
-      var data = doc.data()
-      arrayEstrato.push({
-        'id': doc.id,
-        'cpfVendendor': data.cpfVendendor,
-        'data': data.data,
-        'name': data.name,
-        'nomeVendendor': data.nomeVendendor,
-        'numeroBilhete': data.numeroBilhete,
-        'numeroSorteio': data.numeroSorteio,
-        'numerosBilhetes': data.numerosBilhetes,
-        'telefone': data.telefone,
-      })
-    });
-    // setLoading(false)
-    console.log('arrayEstrato', arrayEstrato)
-    setExtrato(arrayEstrato)
+    // const querySnapshot = await getDocs(q);
+    // // console.log('querySnapshot', querySnapshot.si)
+    // querySnapshot.forEach((doc) => {
+    //   // doc.data() is never undefined for query doc snapshots
+    //   console.log(doc.id, " => ", doc.data());
+    //   var data = doc.data()
+    //   arrayEstrato.push({
+    //     'id': doc.id,
+    //     'cpfVendendor': data.cpfVendendor,
+    //     'data': data.data,
+    //     'name': data.name,
+    //     'nomeVendendor': data.nomeVendendor,
+    //     'numeroBilhete': data.numeroBilhete,
+    //     'numeroSorteio': data.numeroSorteio,
+    //     'numerosBilhetes': data.numerosBilhetes,
+    //     'telefone': data.telefone,
+    //   })
+    // });
+    // // setLoading(false)
+    // console.log('arrayEstrato', arrayEstrato)
+    // setExtrato(arrayEstrato)
   }
 
   function handleSignOut() {

@@ -8,14 +8,14 @@ import { useAuth } from '../../contexts/auth';
 
 const Details = ({distancia, navigation, destination, duration, abrirConfirmacao, yourLocation}) => {
 
-  const { buscarMotoristaLivre, motoristaLivre} = useAuth()
+  const { buscarMotoristaLivre, motoristaLivre, region} = useAuth()
 
   const [ selected, setSelected ] = useState(null)
   const [ valor, setValor ] = useState(null)
 
   useEffect(() => {
     buscarMotoristaLivre()
-    console.log('*** motoristaLivre', motoristaLivre, distancia)
+    console.log('*** motoristaLivre', motoristaLivre, distancia, yourLocation)
 
   }, [])
 
@@ -38,18 +38,23 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
 
     // calcular KM
     var totalValorKm = kmInteger * tarifa.km
-
+    console.log('totalValorKm ', totalValorKm)
     // calcular Metros
     var valorMetro = tarifa.km / 1000
     var totalValorM = mInteger * valorMetro
 
+    // console.log('totalCorrida ', valorMetro, totalValorM, tarifa.minimo)
+
     var totalCorrida = totalValorKm + totalValorM + parseFloat(tarifa.minimo)
 
-    console.log('arr ', totalValorKm, totalValorM, totalCorrida)
+    // console.log('totalCorrida ', totalCorrida)
+
+    // console.log('arr ', totalValorKm, totalValorM, totalCorrida)
     return totalCorrida
   }
 
   function definirVeiculo(item){
+    // console.log('Item definir veiculo', item)
     for (let i = 0; i < item.length; i++) {
       const element = item[i];
       console.log('Veiculo ', element)
@@ -106,7 +111,7 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
         {motoristaLivre.map((item, key) => (
           <TouchableOpacity 
             onPress={() => {
-              console.log('item item item ', item)
+              // console.log('item item item ', item)
               setSelected(item)
               setValor(valorViagem(distancia, item.tarifa))
             }} 
@@ -125,12 +130,21 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
             <View style={styles.containerDetalhes}>
               <View style={styles.detalhesCarro}>
                 <View style={styles.subDetalhesCarro}>
-                  <Text style={{fontWeight:'bold', fontSize: 13}}>{definirVeiculo(item.veiculos).categoria} </Text><Text style={{fontWeight:'bold', fontSize: 19}}>{moedaBR(valorViagem(distancia, item.tarifa))}</Text>
+                  <Text style={{fontWeight:'bold', fontSize: 13}}>
+                    {/* {definirVeiculo(item.veiculos).categoria}  */}
+                    {item.veiculos[0].categoria}{' '}
+                  </Text>
+                  <Text style={{fontWeight:'bold', fontSize: 19}}>
+                    {moedaBR(valorViagem(distancia, item.tarifa))}
+                  </Text>
                 </View>
 
                 <View style={styles.subDetalhesCarro}>
                   {/* <Text style={{fontWeight:'bold'}}>Honda Civic </Text> */}
-                  <Text>{definirVeiculo(item.veiculos).marca} {definirVeiculo(item.veiculos).modelo} - {definirVeiculo(item.veiculos).placa}</Text>
+                  <Text>
+                    {/* {definirVeiculo(item.veiculos).marca} {definirVeiculo(item.veiculos).modelo} - {definirVeiculo(item.veiculos).placa} */}
+                    {item.veiculos[0].marca} {item.veiculos[0].modelo} - {item.veiculos[0].placa}
+                  </Text>
                   {/* <Icon
                     as={Ionicons}
                     name="star"
@@ -229,10 +243,11 @@ const Details = ({distancia, navigation, destination, duration, abrirConfirmacao
                 distancia,
                 destination,
                 duration,
-                yourLocation
+                yourLocation,
+                region
               )
             }}>
-              <RequestButtonText>Confirmar {definirVeiculo(selected.veiculos).categoria}</RequestButtonText>
+              <RequestButtonText>Confirmar {selected.veiculos[0].categoria}</RequestButtonText>
             </RequestButton>
         </View>
       )}

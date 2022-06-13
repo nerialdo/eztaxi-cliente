@@ -12,41 +12,27 @@ import { StyleSheet, View, Text, Platform, Alert, ActivityIndicator } from 'reac
 // import { BarCodeScanner } from 'expo-barcode-scanner';
 import LerQrCode from './lerQrCode';
 import * as SQLite from "expo-sqlite";
-import { initializeApp } from 'firebase/app';
-import { collection, query, where, addDoc, setDoc, getDocs, getFirestore, doc  } from "firebase/firestore";
+// import { initializeApp } from 'firebase/app';
+// import { collection, query, where, addDoc, setDoc, getDocs, getFirestore, doc  } from "firebase/firestore";
 import {useAuth} from '../../contexts/auth';
 import { format } from 'date-fns';
 import MaskInput from 'react-native-mask-input';
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBNGkmf5kWpFb_w6xFzqAEhOCQC5ND5IUk",
-    authDomain: "whatsapp-82efa.firebaseapp.com",
-    databaseURL: "https://whatsapp-82efa.firebaseio.com",
-    projectId: "whatsapp-82efa",
-    storageBucket: "whatsapp-82efa.appspot.com",
-    messagingSenderId: "1056876714892",
-    appId: "1:1056876714892:web:3dcb8a67476a505938d4a9"
-};
+// const firebaseConfig = {
+//     apiKey: "AIzaSyD3vi63BxmzuxWXrpu_zUMUAwQDD2NoD_w",
+//     authDomain: "extaxi-50c37.firebaseapp.com",
+//     projectId: "extaxi-50c37",
+//     storageBucket: "extaxi-50c37.appspot.com",
+//     messagingSenderId: "1054676875897",
+//     appId: "1:1054676875897:web:6cbbc168db79a2df4fb2a8",
+//     measurementId: "G-5HF9XBLCK7"
+// };
 
-initializeApp(firebaseConfig);
+// initializeApp(firebaseConfig);
 
-function openDatabase() {
-    if (Platform.OS === "web") {
-      return {
-        transaction: () => {
-          return {
-            executeSql: () => {},
-          };
-        },
-      };
-    }
-  
-    const db = SQLite.openDatabase("db.db");
-    return db;
-}
 
-const db = openDatabase();
-const fb = getFirestore();
+// const db = openDatabase();
+// const fb = getFirestore();
 
 export default function CadastrarBilhetes() {
     const [loading, setLoading] = useState(false);
@@ -75,126 +61,119 @@ export default function CadastrarBilhetes() {
         
     }, []);
 
-    useEffect(() => {
-        db.transaction((tx) => {
-          tx.executeSql(
-            "create table if not exists items (id integer primary key not null, numero int, sorteio text, numeros text);"
-          );
-        });
-        listarItens()
-    }, []);
+    
     
     // const bilhetesArray = []
 
     async function cadastrarBilhetesFirebase(valueForm, valuesSQL){
-        console.log("buscando bilhetes", valuesSQL)
+        // console.log("buscando bilhetes", valuesSQL)
         
-        try {
-            // const q = query(collection(fb, "bilhetesVendidos"), where("numeroBilhete", "==", valuesSQL.numero), where("numeroSorteio", "==", valuesSQL.sorteio), where("numerosBilhetes", "==", valuesSQL.numeros));
-            const q = query(collection(fb, "bilhetesVendidos"), where("numeroBilhete", "==", valuesSQL.numero), where("numeroSorteio", "==", valuesSQL.sorteio), where("numerosBilhetes", "==", valuesSQL.numeros));
-            const querySnapshot = await getDocs(q);
+        // try {
+        //     // const q = query(collection(fb, "bilhetesVendidos"), where("numeroBilhete", "==", valuesSQL.numero), where("numeroSorteio", "==", valuesSQL.sorteio), where("numerosBilhetes", "==", valuesSQL.numeros));
+        //     const q = query(collection(fb, "bilhetesVendidos"), where("numeroBilhete", "==", valuesSQL.numero), where("numeroSorteio", "==", valuesSQL.sorteio), where("numerosBilhetes", "==", valuesSQL.numeros));
+        //     const querySnapshot = await getDocs(q);
 
-            // setLoading(true)
+        //     // setLoading(true)
 
-            console.log('Buscando', querySnapshot.size);
+        //     console.log('Buscando', querySnapshot.size);
             
-            setBilhetesDuplicadosFirebase(false)
-            if(querySnapshot.size === 0) {
-                var data = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
-                try {
-                    await addDoc(collection(fb, "bilhetesVendidos"), {
-                        name: valueForm.name,
-                        telefone: phone,
-                        numeroSorteio: valuesSQL.sorteio,
-                        numeroBilhete: valuesSQL.numero,
-                        numerosBilhetes: valuesSQL.numeros,
-                        cpfVendendor: user.cpf,
-                        nomeVendendor: user.name,
-                        data: data,
-                        cidade: user.cidade,
-                        status: 'Ativo',
-                        obs: ''
-                    })
-                    console.log("Adicinou no banco")
-                    setFormHabilitado(false)
-                    setQrHabilitado(true)
-                    // setLoading(false)
-                    setBilhetes([])
-                    setPhone()
+        //     setBilhetesDuplicadosFirebase(false)
+        //     if(querySnapshot.size === 0) {
+        //         var data = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+        //         try {
+        //             await addDoc(collection(fb, "bilhetesVendidos"), {
+        //                 name: valueForm.name,
+        //                 telefone: phone,
+        //                 numeroSorteio: valuesSQL.sorteio,
+        //                 numeroBilhete: valuesSQL.numero,
+        //                 numerosBilhetes: valuesSQL.numeros,
+        //                 cpfVendendor: user.cpf,
+        //                 nomeVendendor: user.name,
+        //                 data: data,
+        //                 cidade: user.cidade,
+        //                 status: 'Ativo',
+        //                 obs: ''
+        //             })
+        //             console.log("Adicinou no banco")
+        //             setFormHabilitado(false)
+        //             setQrHabilitado(true)
+        //             // setLoading(false)
+        //             setBilhetes([])
+        //             setPhone()
         
-                } catch (error) {
-                    console.log("error cadastro de dados do usuário", error)
-                    // setLoading(false)
-                }
+        //         } catch (error) {
+        //             console.log("error cadastro de dados do usuário", error)
+        //             // setLoading(false)
+        //         }
                 
-            }else{
-                // setLoading(false)
-                console.log("Bilhete já está vendido")
-                setBilhetesDuplicadosFirebase(true)
-                await new Promise(resolve => setTimeout(resolve, 2000))
-            }
+        //     }else{
+        //         // setLoading(false)
+        //         console.log("Bilhete já está vendido")
+        //         setBilhetesDuplicadosFirebase(true)
+        //         await new Promise(resolve => setTimeout(resolve, 2000))
+        //     }
             
-        } catch (error) {
-            console.log("erro buscar bilhete no firebase", error)
-            // setLoading(false)
-        }
+        // } catch (error) {
+        //     console.log("erro buscar bilhete no firebase", error)
+        //     // setLoading(false)
+        // }
     }
 
     function deletarItens(){
-        db.transaction(
-            (tx) => {
-                db.transaction(
-                    (tx) => {
-                      tx.executeSql(`delete from items`);
-                      setBilhetes([])
-                    },
-                    null,
-                )
-            }
-        )
+        // db.transaction(
+        //     (tx) => {
+        //         db.transaction(
+        //             (tx) => {
+        //               tx.executeSql(`delete from items`);
+        //               setBilhetes([])
+        //             },
+        //             null,
+        //         )
+        //     }
+        // )
     }
 
     function listarItens(){
-        db.transaction(
-            (tx) => {
-                tx.executeSql("select * from items", [], (_, { rows }) =>{
-                    //   console.log("Dados no sqllte", JSON.stringify(rows))
-                    //   console.log("Dados no sqllte", rows._array)
-                      setBilhetes(rows._array)
-                });
-            }
-        );
+        // db.transaction(
+        //     (tx) => {
+        //         tx.executeSql("select * from items", [], (_, { rows }) =>{
+        //             //   console.log("Dados no sqllte", JSON.stringify(rows))
+        //             //   console.log("Dados no sqllte", rows._array)
+        //               setBilhetes(rows._array)
+        //         });
+        //     }
+        // );
     }
 
     const add = (numero, sorteio, numeros) => {
-        // is text empty?
-        var numerosBilhete = JSON.stringify(numeros)
-        //.replace("JavaScript", "PHP");
-        console.log("numero, sorteio, numeros", numero, sorteio, numerosBilhete.replace("[", "").replace("]", ","))
-        if (numero === null || numero === "" || sorteio === null || sorteio === "" || numeros === null || numeros === "") {
-          return false;
-        }
+        // // is text empty?
+        // var numerosBilhete = JSON.stringify(numeros)
+        // //.replace("JavaScript", "PHP");
+        // console.log("numero, sorteio, numeros", numero, sorteio, numerosBilhete.replace("[", "").replace("]", ","))
+        // if (numero === null || numero === "" || sorteio === null || sorteio === "" || numeros === null || numeros === "") {
+        //   return false;
+        // }
     
-        db.transaction(
-            (tx) => {
-                tx.executeSql("select * from items where numeros = ?;", [numerosBilhete.replace("[", "").replace("]", ",")], (_, { rows }) =>{
-                    //   console.log("Dados no sqllte", JSON.stringify(rows))
-                      console.log("Bilhete já estiste? ", rows.length)
-                    //   setBilhetes(rows._array)
-                    if(rows.length === 0){
-                        tx.executeSql("insert into items (numero, sorteio, numeros) values (?, ?, ?)", [numero, sorteio, numerosBilhete.replace("[", "").replace("]", ",")]);
-                        tx.executeSql("select * from items", [], (_, { rows }) =>{
-                            // console.log("Dados no sqllte", JSON.stringify(rows))
-                            // console.log("Dados no sqllte", )
-                            setBilhetes(rows._array)
-                        });
-                        listarItens()
-                    }else{
-                        Alert.alert('Atenção: ','Bilhete já foi salvo na lista')
-                    }
-                });
-            }
-        )
+        // db.transaction(
+        //     (tx) => {
+        //         tx.executeSql("select * from items where numeros = ?;", [numerosBilhete.replace("[", "").replace("]", ",")], (_, { rows }) =>{
+        //             //   console.log("Dados no sqllte", JSON.stringify(rows))
+        //               console.log("Bilhete já estiste? ", rows.length)
+        //             //   setBilhetes(rows._array)
+        //             if(rows.length === 0){
+        //                 tx.executeSql("insert into items (numero, sorteio, numeros) values (?, ?, ?)", [numero, sorteio, numerosBilhete.replace("[", "").replace("]", ",")]);
+        //                 tx.executeSql("select * from items", [], (_, { rows }) =>{
+        //                     // console.log("Dados no sqllte", JSON.stringify(rows))
+        //                     // console.log("Dados no sqllte", )
+        //                     setBilhetes(rows._array)
+        //                 });
+        //                 listarItens()
+        //             }else{
+        //                 Alert.alert('Atenção: ','Bilhete já foi salvo na lista')
+        //             }
+        //         });
+        //     }
+        // )
 
     };
 
@@ -204,89 +183,89 @@ export default function CadastrarBilhetes() {
     }
 
     function dadosQr(props){
-        // arrayQrCode.push(props)
-        // setQrHabilitado(false)
-        add(props.numero, props.sorteio, props.numeros)
-        // setBilhetes(arrayQrCode)
-        console.log("dadosQrCode", props)
+        // // arrayQrCode.push(props)
+        // // setQrHabilitado(false)
+        // add(props.numero, props.sorteio, props.numeros)
+        // // setBilhetes(arrayQrCode)
+        // console.log("dadosQrCode", props)
     }
 
     const onSubmit = () => {
-        if(!phone){
-            Alert.alert('Atenção', 'O telefone ou celular é obrigatório')
-            return
-        }
-        validate()
-        if(validate()){
-            // setLoading(true)
-            if(formData.name && phone){
-                // console.log("Dados do forme ", formData)
-                // buscar todos os dados no banco
-                // [{
-                //     'numero': 19,
-                //     'sorteio': "005",
-                //     'numeros': "1091,1092,1093,1094,1091,",
-                // },{
-                //     'numero': 13, 
-                //     'sorteio': "005", 
-                //     'numeros': "1061,1062,1063,1064,1066,"
-                // },{
-                //     'numero': 14, 
-                //     'sorteio': "005", 
-                //     'numeros': "1066,1067,1068,1069,1076,"
-                // }].map((item, key) => {
-                //     cadastrarBilhetesFirebase(formData, item)
-                // })
-                // cadastrarBilhetes(formData, {
-                //     'numero': 19,
-                //     'sorteio': "005",
-                //     'numeros': "1091,1092,1093,1094,1095,",
-                // },{
-                //     'numero': 13, 
-                //     'sorteio': "005", 
-                //     'numeros': "1061,1062,1063,1064,1065,"
-                // },{
-                //     'numero': 14, 
-                //     'sorteio': "005", 
-                //     'numeros': "1066,1067,1068,1069,1070,"
-                // })
+        // if(!phone){
+        //     Alert.alert('Atenção', 'O telefone ou celular é obrigatório')
+        //     return
+        // }
+        // validate()
+        // if(validate()){
+        //     // setLoading(true)
+        //     if(formData.name && phone){
+        //         // console.log("Dados do forme ", formData)
+        //         // buscar todos os dados no banco
+        //         // [{
+        //         //     'numero': 19,
+        //         //     'sorteio': "005",
+        //         //     'numeros': "1091,1092,1093,1094,1091,",
+        //         // },{
+        //         //     'numero': 13, 
+        //         //     'sorteio': "005", 
+        //         //     'numeros': "1061,1062,1063,1064,1066,"
+        //         // },{
+        //         //     'numero': 14, 
+        //         //     'sorteio': "005", 
+        //         //     'numeros': "1066,1067,1068,1069,1076,"
+        //         // }].map((item, key) => {
+        //         //     cadastrarBilhetesFirebase(formData, item)
+        //         // })
+        //         // cadastrarBilhetes(formData, {
+        //         //     'numero': 19,
+        //         //     'sorteio': "005",
+        //         //     'numeros': "1091,1092,1093,1094,1095,",
+        //         // },{
+        //         //     'numero': 13, 
+        //         //     'sorteio': "005", 
+        //         //     'numeros': "1061,1062,1063,1064,1065,"
+        //         // },{
+        //         //     'numero': 14, 
+        //         //     'sorteio': "005", 
+        //         //     'numeros': "1066,1067,1068,1069,1070,"
+        //         // })
 
 
-                db.transaction(
-                    (tx) => {
-                        tx.executeSql("select * from items", [], (_, { rows }) =>{
-                            //   console.log("Dados no sqllte", JSON.stringify(rows))
-                            //   console.log("Dados no sqllte", rows._array)
-                              var dadosSqlite = rows._array
-                              for (let d = 0; d < dadosSqlite.length; d++) {
-                                  const element = dadosSqlite[d];
-                                //   console.log("Dados no sqllte", element)
-                                  cadastrarBilhetes(formData, element)
-                              }
-                        });
-                    }
-                );
-            }
-        //   handleSignIn({
-        //     'email' : formData.name,
-        //     'password' : formData.password
-        //   })
-        }else{
-          console.log("Dados errado")
-        }
+        //         db.transaction(
+        //             (tx) => {
+        //                 tx.executeSql("select * from items", [], (_, { rows }) =>{
+        //                     //   console.log("Dados no sqllte", JSON.stringify(rows))
+        //                     //   console.log("Dados no sqllte", rows._array)
+        //                       var dadosSqlite = rows._array
+        //                       for (let d = 0; d < dadosSqlite.length; d++) {
+        //                           const element = dadosSqlite[d];
+        //                         //   console.log("Dados no sqllte", element)
+        //                           cadastrarBilhetes(formData, element)
+        //                       }
+        //                 });
+        //             }
+        //         );
+        //     }
+        // //   handleSignIn({
+        // //     'email' : formData.name,
+        // //     'password' : formData.password
+        // //   })
+        // }else{
+        //   console.log("Dados errado")
+        // }
     };
 
     const validate = () => {
-        setErrors({})
-        console.log("formData erros", errors)
-        if (formData.name === undefined) {
-          setErrors({
-            ...errors,
-            name: 'O Nome é obrigatório',
-          });
-          return false;
-        }
-        return true;
+        // setErrors({})
+        // console.log("formData erros", errors)
+        // if (formData.name === undefined) {
+        //   setErrors({
+        //     ...errors,
+        //     name: 'O Nome é obrigatório',
+        //   });
+        //   return false;
+        // }
+        // return true;
     };
 
     const Loading = () => (

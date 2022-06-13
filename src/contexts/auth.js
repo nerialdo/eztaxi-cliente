@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from "react";
+import { Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as AuthSession from 'expo-auth-session';
 import Constants from 'expo-constants';
@@ -19,7 +20,7 @@ import {
 } from 'firebase/auth';
 import { Firestore, 
     collection, query, where, getDocs, getFirestore, addDoc, setDoc, 
-    doc, deleteDoc, onSnapshot, orderBy, updateDoc, arrayUnion, Timestamp,
+    doc, deleteDoc, onSnapshot, orderBy, updateDoc, arrayUnion, Timestamp, limit,
 } from "firebase/firestore";
 import { getDatabase, ref, onValue} from "firebase/database";
 
@@ -29,17 +30,27 @@ import { useNavigation } from '@react-navigation/native';
 
 import { GiftedChat } from 'react-native-gifted-chat';
 
-Geocoder.init("AIzaSyA5E67B45xsd69Z2SKIhWuVbVlb736lWvk"); 
+Geocoder.init("AIzaSyDkIk12_GO02kQetPzFcMUef5KryEGysOM"); 
 
+// const firebaseConfig = {
+//     apiKey: "AIzaSyBNGkmf5kWpFb_w6xFzqAEhOCQC5ND5IUk",
+//     authDomain: "whatsapp-82efa.firebaseapp.com",
+//     databaseURL: "https://whatsapp-82efa.firebaseio.com",
+//     projectId: "whatsapp-82efa",
+//     storageBucket: "whatsapp-82efa.appspot.com",
+//     messagingSenderId: "1056876714892",
+//     appId: "1:1056876714892:web:3dcb8a67476a505938d4a9"
+// };
 const firebaseConfig = {
-    apiKey: "AIzaSyBNGkmf5kWpFb_w6xFzqAEhOCQC5ND5IUk",
-    authDomain: "whatsapp-82efa.firebaseapp.com",
-    databaseURL: "https://whatsapp-82efa.firebaseio.com",
-    projectId: "whatsapp-82efa",
-    storageBucket: "whatsapp-82efa.appspot.com",
-    messagingSenderId: "1056876714892",
-    appId: "1:1056876714892:web:3dcb8a67476a505938d4a9"
+    apiKey: "AIzaSyD3vi63BxmzuxWXrpu_zUMUAwQDD2NoD_w",
+    authDomain: "extaxi-50c37.firebaseapp.com",
+    projectId: "extaxi-50c37",
+    storageBucket: "extaxi-50c37.appspot.com",
+    messagingSenderId: "1054676875897",
+    appId: "1:1054676875897:web:6cbbc168db79a2df4fb2a8",
+    measurementId: "G-5HF9XBLCK7"
 };
+  
 
 if(firebaseConfig){
   initializeApp(firebaseConfig);
@@ -77,6 +88,8 @@ export const AuthProvider = ({children}) => {
     const [cidadeEstado, setCidadeEstado] = useState(null);
     const [idTransacao, setIdTransacao] = useState(null);
     const [aceite, setAceite] = useState('aguardando');
+
+    const [novaOrder, setNovaOrder] = useState(null)
     // const [infoCorrida, setInfoCorrida] = useState(null);
 
     const [historico, setHistorico] = useState(null);
@@ -85,6 +98,8 @@ export const AuthProvider = ({children}) => {
     const navigation = useNavigation();
 
     const [messages, setMessages] = useState([]);
+
+    const [orderStatus, setOrderStatus] = useState(null);
 
 
     const [expoPushToken, setExpoPushToken] = useState('');
@@ -95,7 +110,7 @@ export const AuthProvider = ({children}) => {
     // Ouvintes de notificações
     useEffect(() => {
 
-        console.log('new Date(Timestamp.now().seconds*1000).toLocaleDateString()', new Date(Timestamp.now().seconds*1000).toLocaleDateString())
+        // console.log('new Date(Timestamp.now().seconds*1000).toLocaleDateString()', new Date(Timestamp.now().seconds*1000).toLocaleDateString())
         registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
@@ -119,6 +134,7 @@ export const AuthProvider = ({children}) => {
     useEffect(() => {
         //verificar se usuario está definido
         // navigation.navigate('Chat');
+        console.log('1° Carregamento')
         try {
             async function verific(){
                 const token = await AsyncStorage.getItem('@RNAuth:token')
@@ -148,8 +164,8 @@ export const AuthProvider = ({children}) => {
           }
     
           let locationGeo = await Location.getCurrentPositionAsync({});
-          console.log('location', locationGeo)
-          console.log('location', locationGeo.coords)
+        //   console.log('location', locationGeo)
+        //   console.log('location', locationGeo.coords)
           setLocation(location);
           setRegion({
             latitude: locationGeo.coords.latitude,
@@ -165,9 +181,9 @@ export const AuthProvider = ({children}) => {
           });
           const address = response.results[0].formatted_address;
           const addressComponents = response.results[0].address_components;
-          console.log('address', address)
+        //   console.log('address', address)
         //   console.log('response.results[0]', response.results[0])
-           console.log('addressComponents', addressComponents)
+        //    console.log('addressComponents', addressComponents)
         //   setYourLocation(addressComponents[1].short_name)
           setYourLocation(address)
           var cidadeEstado = []
@@ -188,21 +204,18 @@ export const AuthProvider = ({children}) => {
 
 
     // buscar hitorico de corridas
-    async function historicoChats(id){
+    async function historicoChats(dados){
+        console.log('dados historicoChats ', dados)
         setLoadi(true)
         try {
-            const q = query(collection(db, "users"), where('id', '==', id));
+            const q = query(collection(db, "chats"), where('idTransacao', '==', dados.id));
             const querySnapshot = await getDocs(q);
             var dadosChats = []
             querySnapshot.forEach((doc) => {
                 // console.log(doc.id, ' => historicoCorridas ', doc.data());
-                console.log(' => historicoChats ', doc.data().chats);
-                var cha = doc.data().chats
-                // dadosChats.push({id: doc.id, data: doc.data().chats})
-                for (let c = 0; c < cha.length; c++) {
-                    const element = cha[c];
-                    dadosChats.push(element)
-                }
+                console.log(' => historicoChats ', doc.data());
+                dadosChats.push({id: doc.id, data: doc.data()})
+         
             });
             setChats(dadosChats)
             setLoadi(false)
@@ -211,40 +224,15 @@ export const AuthProvider = ({children}) => {
             console.log('Erro ao buscar chats ', error)
             setLoadi(false)
         }
+       
     }
-
-    // // buscar hitorico de conversas no chat
-    // async function showOrder(id){
-    //     setLoadi(true)
-    //     try {
-    //         const q = doc(db, "users", id);
-    //         console.log('ShowOrder', q)
-    //         // const querySnapshot = await getDocs(q);
-
-    //         //     console.log(doc.id, ' => showOrder ', querySnapshot);
-    //         // // querySnapshot.forEach((doc) => {
-    //         //     //     console.log(doc.id, ' => showOrder ', doc.data());
-    //         // // });
-
-    //         // onValue(docRef(db, '/users/' + id), (snapshot) => {
-    //         //     // const username = (snapshot.val() && snapshot.val().username) || 'Anonymous';
-    //         //     console.log('ShowOder', snapshot)
-    //         //   }, {
-    //         //     onlyOnce: true
-    //         //   });
-
-    
-    //     } catch (error) {
-    //         console.log('Erro ao buscar dados da order ', error)
-    //     }
-    // }
 
     // buscar hitorico de conversas no chat
     async function historicoCorridas(id){
-        console.log('idcliente ', id)
+        // console.log('idcliente ', id)
         setLoadi(true)
         try {
-            const q = query(collection(db, "order"), where('idCliente', '==', id));
+            const q = query(collection(db, "order"), where('idCliente', '==', id), orderBy("data", "desc"));
             const querySnapshot = await getDocs(q);
             var dadosHistorico = []
             querySnapshot.forEach((doc) => {
@@ -275,10 +263,8 @@ export const AuthProvider = ({children}) => {
     }
     
     async function addNewChat({_id, text, createdAt, user : usuario}) {
-        console.log('Dados em addNewCha ', _id, text, createdAt, usuario)
-        // var data = Timestamp.fromDate(new Date())
+        // console.log('Dados em addNewCha ', _id, text, createdAt, usuario)
         try {
-            
             const mymsg = {
                 _id,
                 text,
@@ -292,124 +278,87 @@ export const AuthProvider = ({children}) => {
                 idTransacao: usuario.idTransacao,
                 createdAt
             }
-    
-            setMessages(previousMessages => GiftedChat.append(previousMessages,mymsg))
-            const docid  = usuario.to._id > usuario._id ? usuario._id+ "-" + usuario.to._id :  usuario.to_id+"-"+usuario._id 
             console.log('mymsg', mymsg)
-            console.log('docid', docid)
+            setMessages(previousMessages => GiftedChat.append(previousMessages,mymsg))
 
-            //cadastra o chat no banco de dados
             await addDoc(collection(db, 'chats'), {
-                chatId: docid,
+                // chatId: docid,
                 status: true,
                 ...mymsg
             });
 
-            //buscar e atualiza o array de chats do usuario
-            const userRef = doc(db, "users", usuario._id);
-            await updateDoc(userRef, {
-                chats: arrayUnion({
-                    chatId: docid,
-                    title: usuario.to.name,
-                    image: usuario.to.avatar,
-                    with: usuario.to._id,
-                    idTransacao: usuario.idTransacao,
-                })
-            });
-    
-            //buscar e atualiza o array de chats do motorista
-            const motoristaRef = doc(db, "motoristas", usuario.to._id);
-            await updateDoc(motoristaRef, {
-                chats: arrayUnion({
-                    chatId: docid,
-                    title: usuario.name,
-                    image: usuario.avatar,
-                    with: usuario._id,
-                    idTransacao: usuario.idTransacao,
-                })
-            });   
 
             // envia notificação para o destinatário
-            schedulePushNotification('', 'Mensagem do passageiro', text)
-             
+            schedulePushNotification(usuario.expoPushToken, 'Mensagem do passageiro', text)
         } catch (error) {
             console.log('Error addNewChat', error)
         }
-        
+
     }
     
-    const onSend = useCallback((messages = []) =>  {
-        // setMessages(previousMessages =>
-        //   GiftedChat.append(previousMessages, messages)
-        // );
-        // const { _id, createdAt, text, user } = messages[0];    
+    const onSend = useCallback((messages = []) =>  {  
         const msg = messages[0];    
-        console.log('dados da mensagem', messages[0])
-        // addNewChat(_id, createdAt, text, user)
+        console.log('messages ', msg)
+        // console.log('dados da mensagem', messages[0])
+
         addNewChat(msg)
-        // addDoc(collection(db, 'chats'), {
-        //   _id,
-        //   createdAt,
-        //   text,
-        //   user
-        // });
+
     }, []);
 
-    async function iniciarChat(idChat){
-
-        setLoadi(true)
-        // try {
-        //     const q = query(collection(db, "chats"), where('idTransacao', '==', idChat));
-        //     const querySnapshot = await getDocs(q);
-        //     var mensagensDoChat = []
+    async function iniciarChat(dados){
+        // setLoadi(true)
+        // console.log('dadosdadosdadosdados', dados)
+        // const collectionRef = collection(db, 'chats');
+        // const q = query(collectionRef, where('idTransacao', '==', dados.id), orderBy("createdAt", "desc"));
+    
+        // onSnapshot(q, querySnapshot => {
+        //     console.log('querySnapshot', querySnapshot)
         //     setMessages(
-        //         querySnapshot.docs.map(doc => ({
-        //             _id: doc.data()._id,
-        //             createdAt: doc.data().createdAt.toDate(),
-        //             text: doc.data().text,
-        //             user: doc.data().user
-        //         })
-        //     ))
-        //     // querySnapshot.forEach((doc) => {
-        //     //     console.log(doc.id, ' => mensagensDoChat ', doc.data());
-        //     //     mensagensDoChat.push({id: doc.id, data: doc.data()})
-        //     // });
-        //     // // setHistorico(dadosHistorico)
-        //     setLoadi(false)
-    
-        // } catch (error) {
-        //     console.log('Erro ao buscar veículos disponíveis ', error)
-        //     setLoadi(false)
-        // }
-        
-        const collectionRef = collection(db, 'chats');
-        const q = query(collectionRef, where('idTransacao', '==', idChat));
-    
-        onSnapshot(q, querySnapshot => {
-            console.log('querySnapshot', querySnapshot)
-            setMessages(
-                querySnapshot.docs.map(doc => ({
-                    _id: doc.data()._id,
-                    createdAt: doc.data().createdAt.toDate(),
-                    text: doc.data().text,
-                    user: doc.data().user
-                })
-            )
-            );
-        });
+        //         querySnapshot.docs.map(doc => {
+        //             console.log('querySnapshot+++**', doc.data())
+        //             return {
+        //                 _id: doc.data()._id,
+        //                 createdAt: doc.data().createdAt.toDate(),
+        //                 text: doc.data().text,
+        //                 user: doc.data().user
+        //             }
+        //         }
+        //     )
+        //     );
+        // });
     }
 
     // fim chat
 
     async function userLogado(token){
         try {
-            console.log('token passado na função userLogado ', token)
+
+            // onAuthStateChanged(auth, use => {
+            //     console.log('usario logado trtrtrtr', use)
+            //     if (use != null) {
+            //         console.log('Está logado agora', use.uid);
+            //          buscarDadosUser(use.uid)
+            //          monitorarChat(use.uid)
+            //          verificarOrderAberta(use.uid)
+            //     }else{
+            //         console.log('Não está logado userLogado');
+            //         setLoading(false)
+            //     }
+            // })
+
+            // console.log('token passado na função userLogado ', token)
             const response = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${token}`);
             const userInfo = await response.json();
             console.log('dados do usuario', userInfo);
             // setUser(userInfo)
-            buscarDadosUser(userInfo.id)
-            monitorarChat(userInfo.id)
+            if(userInfo.error && userInfo.error.status === 'UNAUTHENTICATED'){
+                logout()
+            }else{
+                buscarDadosUser(userInfo.id)
+                monitorarChat(userInfo.id)
+                verificarOrderAberta(userInfo.id)
+                verificarOrder(userInfo.id)
+            }
             // setLoading(false)
             // const value = await AsyncStorage.getItem('@RNAuth:user')
             // console.log('AsyncStorage.setItem', JSON.parse(value))
@@ -421,114 +370,134 @@ export const AuthProvider = ({children}) => {
         }
     }
 
-    useEffect(() => {
-        // console.log('useruseruser', user)
-        // setLoading(false)
-        // userLogado()
-        // onAuthStateChanged(auth, use => {
-        //     console.log('usario logado trtrtrtr', use)
-        //     // if (user != null) {
-        //     //     console.log('Está logado agora');
-        //     // }else{
-        //     //     console.log('Não está logado');
-        //     // }
-        
-        // // Do other things
-        // });
-        // // async function loadStoragedData(){
-
-        // //     //varificar qual o tipo de usuario: Passagero ou Motorista
-        // //     const value = await AsyncStorage.getItem('@tipoUsuario')
-        // //     if(value) {
-        // //         setUsuarioDefinido(true)
-        // //     }else{
-        // //         setUsuarioDefinido(false)
-        // //     }
-
-
-        // //     const storagedUser = await AsyncStorage.getItem('@RNAuth:user');
-        // //     const storagedToken =  await AsyncStorage.getItem('@RNAuth:token');
-
-        // //     console.log("dados salvos auth", JSON.parse(storagedUser))
-        // //     console.log("dados salvos auth storagedToken", storagedToken)
-
-        // //     // await new Promise(resolve => setTimeout(resolve, 2000))
-
-        // //     const userLogado = await auth.currentUser;
-        // //     console.log("usuario logado", userLogado)
-        // //     if (userLogado) {
-        // //         // buscar dados do usuario no firebase
-        // //         try {
-        // //             const q = query(collection(db, "users"), where("email", "==", userLogado.email));
-
-        // //             const querySnapshot = await getDocs(q);
-        // //             querySnapshot.forEach((doc) => {
-        // //                 // doc.data() is never undefined for query doc snapshots
-        // //                 console.log("usuario", doc.data());
-        // //                 // setUser(doc.data())
-        // //                 async function atualiarStorage(){
-        // //                     await AsyncStorage.setItem('@RNAuth:user', JSON.stringify(doc.data()))
-        // //                 }
-        // //                 atualiarStorage()
-        // //             });
-        // //         } catch (error) {
-        // //             console.log("Erro select users", error)
-        // //         }
-        // //     } else {
-        // //         console.log("Deslogado")
-        // //         // setUser(null)
-        // //     }
-
-        // //     if(storagedToken && storagedUser){
-        // //         // console.log("Iniciando ...")
-        // //         api.defaults.headers['Authorization'] = `Bearer ${storagedToken}`
-        // //         if(storagedUser){
-        // //             // setUser(JSON.parse(storagedUser))
-        // //         }else{
-        // //             // setUser([])
-        // //         }
-        // //         setLoading(false)
-        // //     }else{
-        // //         setLoading(false) 
-        // //     }
-        // // }
-
-        // // loadStoragedData();
-    }, [])
-
     async function removerOrder(id){
         await deleteDoc(doc(db, "order", id));
         navigation.navigate('Dashboard');
         
     }
 
+    // cancela a corrida e define um motivo do cancelamento
+    async function cancelarCorrida(dados, motivo){
+        // console.log('PPPPPP ', dados)
+        // alert(motivo)
+        // console.log('cancelarCorridacancelarCorridacancelarCorrida', dados.id, motivo)
+        if(dados){
+            // console.log('cancelarCorrida', dados[0].id, motivo)
+            try {
+                const userRef = doc(db, "order", dados.id);
+                await updateDoc(userRef, {
+                    'status': 'Cancelado',
+                    'dataCancelamento': Timestamp.fromDate(new Date()),
+                    'motivoCancelamento': motivo,
+                    'quemCancelou': 'Cliente'  
+                });
+                // atualizarStatusMotorista(dados.data.idMotorista, 'Livre')
+                setOrderStatus({'status': 'Cancelado', 'quemCancelou': 'Cliente', 'dados': dados[0]})
+                setNovaOrder(null)
+            } catch (error) {
+                console.log('Erro ao cancelar corrida', error, error.response)
+                alert('Erro ao tentar cancelar, fale com o suporte')
+            }
+        }
+    }
+
+
     /**
      * 
      * @param {*} seg segundos para o delay
      * @param {*} dadosCorrida dadosCorrida são os dados do motorista
      */
-    async function delay(seg, dadosCorrida){
+    async function delay(seg, dadosCorrida, aceite){
         console.log('Redirecionando aqui', seg, dadosCorrida)
-        await new Promise(resolve => setTimeout(resolve, seg));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         // console.log('Redireciounou agora aqui')
-        navigation.navigate('Chat',{
-            idMotorista: dadosCorrida.id,
-            nomeMotorista: dadosCorrida.nome,
-            pictureMotorista: dadosCorrida.picture
-        });
+        if(aceite === 'sim'){
+            navigation.navigate('Chat',{
+                idMotorista: dadosCorrida.id,
+                nomeMotorista: dadosCorrida.nome,
+                pictureMotorista: dadosCorrida.picture
+            });
+        }else if(aceite === 'nao'){
+            // Alert.alert('Desculpe: ', 'O motorista recusou sua corrida, peço que faça uma nova busca e selecione outro motorista')
+        }
     }
 
-    async function verificarOrder(id, dadosCorrida){
+    async function verificarOrderAberta(id){
+        //verifica ordem aberta do cliente
+        const collectionRef = collection(db, 'order');
+        const q = query(
+            collectionRef, 
+            where('idCliente', '==', id), 
+            // where('aceite', '==', true), 
+            // where('status', '==', 'Aberto'),
+            orderBy("data", "desc"),
+            limit(1)
+        );
+        onSnapshot(q, querySnapshot => {
+        //  console.log('querySnapshot verificarOrderAberta', querySnapshot, querySnapshot.size)
+            if(querySnapshot.size === 0){
+                setNovaOrder(null)
+            }else{
+                
+                querySnapshot.docs.map(doc => {
+                    console.log('id verificarOrderAberta', doc.id)
+                    console.log('querySnapshot verificarOrderAberta ', doc.id, doc.data(), doc.data().status)
+                    var dd = {'id': doc.id, 'data': doc.data()}
+                    if(doc.data().status === 'PENDENTE'){
+                        setNovaOrder(dd)
+                    }else if(doc.data().status === 'RECUSOU'){
+                        // setNovaOrder(null)
+                        // setOrderStatus({'status': 'Cancelado', 'quemCancelou': 'Motorista', 'dados': dd})
+                        // setNovaOrder(null)
+                        // setNovaOrder()
+                        setNovaOrder(dd)
+                    }else if(doc.data().status === 'ACEITOU'){
+                        // setNovaOrder(null)
+                        setNovaOrder(dd)
+                    }
+
+                    // if(doc.data() && doc.data().aceite === true){
+                    //     console.log('Motorista aceitou 2')
+                    //     setAceite('sim')
+                    //     // delay(3000, dadosCorrida, 'sim')
+                        
+                    // }else if(doc.data() && doc.data().aceite === false){
+                    //     console.log('Motorista recusou 2')
+                    //     setAceite('nao')
+                    //     setNovaOrder(null)
+                    //     // setOrderStatus({'status': 'Cancelado', 'quemCancelou': 'Motorista'})
+                    //     var dd = {'id': doc.id, 'data': doc.data()}
+                    //     setOrderStatus({'status': 'Cancelado', 'quemCancelou': 'Motorista', 'dados': dd})
+                    //     // delay(7000, dadosCorrida, 'nao')
+                    // }else if(doc.data() && doc.data().aceite === null){
+                    //     console.log('Motorista ainda nao  2')
+                    //     setAceite('aguardando')
+                    //     // delay(7000, dadosCorrida, 'nao')
+                    // }
+                   
+                    // return {'id': doc.id, 'data': doc.data()} 
+                })
+                
+            }
+        });
+    }
+    async function verificarOrder(id){
         onSnapshot(doc(db, "order", id), (doc) => {
+            
             if(doc.data() && doc.data().aceite === true){
-                console.log('Motorista aceitou')
+                console.log('Motorista aceitou 1')
                 setAceite('sim')
-                delay(3000, dadosCorrida)
+                // delay(3000, dadosCorrida, 'sim')
                 
             }else if(doc.data() && doc.data().aceite === false){
-                console.log('Motorista recusou')
+                console.log('Motorista recusou 1')
                 setAceite('nao')
-                delay(7000, dadosCorrida)
+                setNovaOrder(null)
+                // delay(7000, dadosCorrida, 'nao')
+            }else if(doc.data() && doc.data().aceite === null){
+                console.log('Motorista ainda nao aceitou 1')
+                setAceite('aguardando')
+                // delay(7000, dadosCorrida, 'nao')
             }
             // console.log( " data: ", doc.data(), doc.data().aceite);
         });
@@ -541,7 +510,8 @@ export const AuthProvider = ({children}) => {
         destination, 
         duration, 
         user,
-        yourLocation
+        yourLocation,
+        regionGeo
     ){
         // console.log('Salvando ordem para o motorista', dadosCorrida, valor, distancia, destination, duration, user)
         setAceite('aguardando')
@@ -551,17 +521,32 @@ export const AuthProvider = ({children}) => {
                 idCliente: user.id,
                 dadosCorrida: dadosCorrida,
                 yourLocation: yourLocation,
+                yourGeoLocation: regionGeo,
                 valor: valor,
                 distancia: distancia,
                 destination: destination,
                 duration: duration,
                 user: user,
                 aceite: null,
-                status: 'Aberta',
-                data: Timestamp.fromDate(new Date())
+                buscouPassageiro: false,
+                buscandoPassageiro: null, // nullo sem interação, true buscando passageiro, false: saiu da rota de buscar passageiro
+                status: 'PENDENTE',
+                data: Timestamp.fromDate(new Date()),
+                // dataCancelamento: '',
+                // motivoCancelamento: motivo,
+                // quemCancelou: Cliente  
             });
             setIdTransacao(docRef.id)
-            verificarOrder(docRef.id, dadosCorrida)
+            verificarOrderAberta(user.id)
+            // verificarOrder(docRef.id)
+
+            // atualizar status do motirista 
+            // const motoristaRef = doc(db, "motoristas", dadosCorrida.id);
+            // await updateDoc(motoristaRef, {
+            //     status: 'Ocupado'
+            // });   
+
+
             // setInfoCorrida(dadosCorrida)
             // console.log("Document written with ID: ", docRef.id);
             schedulePushNotification('', 'Passageiro chamando ...', 'Abra o app e aceite sua corrida!')
@@ -572,16 +557,26 @@ export const AuthProvider = ({children}) => {
     }
 
     async function buscarMotoristaLivre(){
+        console.log('buscarMotoristaLivre')
         try {
             setMotoristaLivre([])
-            const museums = query(collection(db, 'motoristas'));
-            const querySnapshot = await getDocs(museums);
-            var dadosMotoristas = []
-            querySnapshot.forEach((doc) => {
-                // console.log(doc.id, ' => ********** ', doc.data());
-                dadosMotoristas.push(doc.data())
+            const museums = query(collection(db, 'motoristas'), where("status", "==", 'Livre'));
+            // const querySnapshot = await getDocs(museums);
+            onSnapshot(museums, querySnapshot => {
+                var dadosMotoristas = []
+                console.log('querySnapshot', querySnapshot)
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id, ' => ********** buscarMotoristaLivre', doc.data());
+                    dadosMotoristas.push(doc.data())
+                });
+                setMotoristaLivre(dadosMotoristas)
             });
-            setMotoristaLivre(dadosMotoristas)
+            // querySnapshot.forEach((doc) => {
+            //     console.log(doc.id, ' => ********** buscarMotoristaLivre', doc.data());
+            //     dadosMotoristas.push(doc.data())
+            // });
+            // console.log('querySnapshot', querySnapshot.size)
+            // setMotoristaLivre(dadosMotoristas)
     
         } catch (error) {
             console.log('Erro ao buscar veículos disponíveis ', error)
@@ -609,6 +604,7 @@ export const AuthProvider = ({children}) => {
     async function buscarDadosUser(id){
         // await AsyncStorage.setItem('@RNAuth:token', tok)
         // console.log('dados para buscardadosdouser', id)
+        // alert(id)
         try {
             const q = query(collection(db, "users"), where("id", "==", id));
             const querySnapshot = await getDocs(q);
@@ -621,12 +617,14 @@ export const AuthProvider = ({children}) => {
             });
         } catch (error) {
             console.log('Erro ao buscar dados do usuário', error)
+            setUser(null)
+            setNovaOrder(null)
             setLoading(false)
         }
     }
 
     async function addAsync(res){
-        console.log('resssssss', res)
+        // console.log('resssssss', res)
         await AsyncStorage.setItem('@RNAuth:user', JSON.stringify(
             {
                 'email': res.email,
@@ -692,6 +690,7 @@ export const AuthProvider = ({children}) => {
             // }
             addAsync(info)
             buscarDadosUser(info.id)
+            verificarOrderAberta(info.id)
         
         } catch (error) {
             console.log('Erro ao salvar usuario', error, error.response)    
@@ -702,7 +701,7 @@ export const AuthProvider = ({children}) => {
     
     async function loadProfile(token){
         try {
-            console.log('token na função loadProfile', token)
+            // console.log('token na função loadProfile', token)
             const response = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${token}`);
             const userInfo = await response.json();
             console.log('dados do usuario', userInfo);
@@ -825,10 +824,18 @@ export const AuthProvider = ({children}) => {
     async function logout(){
         setLoading(true)
         setUser(null)
+        setNovaOrder(null)
         AsyncStorage.clear().then(() => {
             console.log('Saiu do APP')
         })
         setLoading(false)
+    }
+
+    const limparOrder = () => {
+        setNovaOrder(null)
+    }
+    const limparOrderStatus = () => {
+        setOrderStatus(null)
     }
 
     return (
@@ -860,7 +867,13 @@ export const AuthProvider = ({children}) => {
             historico,
             historicoChats,
             chats,
-            // showOrder
+            novaOrder,
+            cancelarCorrida,
+            expoPushToken,
+            // showOrder,
+            limparOrder,
+            orderStatus,
+            limparOrderStatus
         }}>
             {children}
         </AuthContext.Provider>
@@ -873,6 +886,7 @@ export function useAuth() {
 };
 
 async function schedulePushNotification(token, title, body) {
+    // alert(token)
 //   alert('tete')
   // await Notifications.scheduleNotificationAsync({
   //   content: {
@@ -888,7 +902,8 @@ async function schedulePushNotification(token, title, body) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ 
-      to: "ExponentPushToken[HoRWXVB76JN2coSrVbZp96]",
+    //   to: "ExponentPushToken[HoRWXVB76JN2coSrVbZp96]",
+      to: token,
       title: title,
       body: body,
     })
@@ -897,7 +912,7 @@ async function schedulePushNotification(token, title, body) {
 
 
 
-async function registerForPushNotificationsAsync() {
+async function registerForPushNotificationsAsync() {(0)
   let token = '';
   if (Constants.isDevice) {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -912,7 +927,7 @@ async function registerForPushNotificationsAsync() {
     }
     token = (await Notifications.getExpoPushTokenAsync()).data;
     console.log("Token notificarion", token);
-  } else {
+  } else {0
     // alert('Deve usar o dispositivo físico para notificações push');
   }
 
@@ -924,6 +939,6 @@ async function registerForPushNotificationsAsync() {
       lightColor: '#FF231F7C',
     });
   }
-  console.log("Token notificarion fora", token);
+//   console.log("Token notificarion fora", token);
   return token;
 }

@@ -1,6 +1,8 @@
 import React from "react";
 
-import { StyleSheet, View, ActivityIndicator } from "react-native";
+import { StyleSheet, View, ActivityIndicator, Text, Platform } from "react-native";
+
+import { Avatar, Center} from "native-base";
 
 import {useAuth} from "../contexts/auth";
 
@@ -10,9 +12,19 @@ import AppRoutes from "./app.routes";
 
 import TipoUsuario from "./tipousuario.routes";
 
+import AlertMsg from "../componets/AlertMsg";
+
+import Stagger from "../componets/Stagger";
+
+import CorridaAberta from "../pages/CorridaAberta";
+
+import AlertStatusPedido from "../componets/AlertStatusPedido";
+
+
 const Routes = () => {
-    const { signed, loading} = useAuth()
-    console.log("loading page Routes", signed, loading)
+    const { signed, loading, novaOrder, aceite, orderStatus, limparOrderStatus} = useAuth()
+    // console.log("loading page Routes", signed, loading, novaOrder, aceite, orderStatus)
+    console.log("loading page Routes", signed, loading, novaOrder)
 
     if(loading){
         return (
@@ -22,7 +34,33 @@ const Routes = () => {
         )
     }
 
-    return signed ? <AppRoutes /> : <AuthRoutes />;
+    if(novaOrder){
+        return (
+            <CorridaAberta />
+        )
+    }
+
+    return signed ? 
+        <>
+        <AppRoutes />
+        {/* {orderStatus && (
+            <View style={styles.InfoGeralTop}>
+                <AlertStatusPedido orderStatus={orderStatus} limparOrderStatus={limparOrderStatus}/>
+            </View>
+        )} */}
+        {/* <View style={styles.InfoGeralTop}>
+            <AlertMsg />
+        </View> */}
+        <View style={styles.MenuStagger}>
+            <Stagger />
+        </View>
+        <View style={styles.InfoGeral}>
+            {/* <Stagger /> */}
+        </View>
+        </> 
+        : 
+        <AuthRoutes />;
+    // return signed ? <View><AppRoutes /></View> : <AuthRoutes />;
 }
 
 export default Routes;
@@ -33,5 +71,28 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    InfoGeralTop: {
+        position: 'absolute',
+        top: Platform.select({ ios: 40, android: 20 }),
+        // padding: 15,
+        left: 0,
+        width: '100%',
+        zIndex: 99999
+    },
+    InfoGeral: {
+        position: 'absolute',
+        bottom: 0,
+        padding: 15,
+        left: 0,
+        width: '100%',
+    },
+    MenuStagger: {
+        position: 'absolute',
+        bottom: 0,
+        padding: 15,
+        right: 0,
+        // width: '100%',
+        alignItems: 'flex-end'
     },
 });

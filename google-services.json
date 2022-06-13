@@ -1,27 +1,36 @@
 {
   "project_info": {
-    "project_number": "1056876714892",
-    "firebase_url": "https://whatsapp-82efa.firebaseio.com",
-    "project_id": "whatsapp-82efa",
-    "storage_bucket": "whatsapp-82efa.appspot.com"
+    "project_number": "1054676875897",
+    "project_id": "extaxi-50c37",
+    "storage_bucket": "extaxi-50c37.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1056876714892:android:74b1b0e1469c652b",
+        "mobilesdk_app_id": "1:1054676875897:android:cb6e5caf2369be434fb2a8",
         "android_client_info": {
-          "package_name": "whatsappandroid.webativa.com.whatsapp"
+          "package_name": "br.com.eztaxi"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1054676875897-p7mp2adga61ph9nk9kromupplhbhofls.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCMnTn0nStAmcjkHt28KHFCLCmD1ydkC2M"
+          "current_key": "AIzaSyDboSZfUAMSCWKZcVbqw6bFZlKZKa0AHqA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1054676875897-p7mp2adga61ph9nk9kromupplhbhofls.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

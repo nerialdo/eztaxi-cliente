@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { Alert } from 'react-native';
+import { Alert, TouchableOpacity } from 'react-native';
 import { StyleSheet, View, Dimensions, Platform} from 'react-native';
 import { 
   Container,
@@ -25,7 +25,7 @@ import styled, { css } from 'styled-components/native';
 import LottieView from 'lottie-react-native';
 
 const Esperando = ({ navigation, handleBack, desabilitarTelaEspera }) => {
-  const {user, idTransacao, removerOrder, aceite} = useAuth()
+  const {user, idTransacao, removerOrder, aceite, cancelarCorrida, novaOrder} = useAuth()
   const [menuTop, setMenuTop] = useState(true)
   const [showMenu, seShowMenu] = useState(false)
   const windowWidth = Dimensions.get('window').width;
@@ -50,6 +50,7 @@ const Esperando = ({ navigation, handleBack, desabilitarTelaEspera }) => {
   }, [navigation]);
   
   useEffect(() => {
+    console.log('idTransacao', idTransacao)
     // setRegion({
     //   latitude: 37.78825,
     //   longitude: -122.4324,
@@ -112,8 +113,9 @@ const Esperando = ({ navigation, handleBack, desabilitarTelaEspera }) => {
               </Heading> */}
               {idTransacao && (
                 <Button size={'md'} variant="ghost" onPress={() => {
-                  removerOrder(idTransacao)
-                  handleBack()
+                  // removerOrder(idTransacao)
+                  cancelarCorrida([{'id': idTransacao}], 'Não informado')
+                  desabilitarTelaEspera()
                 }}>
                   Cancelar
                 </Button>
@@ -179,8 +181,17 @@ const Esperando = ({ navigation, handleBack, desabilitarTelaEspera }) => {
    
               <VStack space={4} alignItems="center">
                 <Text mt="1" textAlign={'center'} fontWeight="light" fontSize={11}>
-                  Aguarde estamos redirecionando
+                O motorista recusou sua corrida, peço que faça uma nova busca e selecione outro motorista
                 </Text>
+                <Button 
+                  size={'md'} 
+                  variant="ghost" 
+                  onPress={() => {
+                    navigation.push('Dashboard');
+                  }}
+                >
+                  Retornar
+                </Button>
                 <Text mt="1" textAlign={'center'} fontWeight="light" fontSize={11}>
                   ID TRANSAÇÃO
                 </Text>

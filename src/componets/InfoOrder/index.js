@@ -120,7 +120,7 @@ const Checkout = ({
               </HStack>
               <HStack alignItems="flex-start" justifyContent="flex-start" flexDirection={'column'}>
                 <Text fontWeight="light">Para </Text>
-                <Text fontWeight="medium">{selected.data.destination.title_secondary}</Text>
+                <Text fontWeight="medium">{selected.data.destination.title} {selected.data.destination.title_secondary}</Text>
               </HStack>
               {/* <HStack alignItems="center" justifyContent="space-between">
                 <Text fontWeight="medium">Pagamento</Text>

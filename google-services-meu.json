@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1056876714892",
+    "firebase_url": "https://whatsapp-82efa.firebaseio.com",
+    "project_id": "whatsapp-82efa",
+    "storage_bucket": "whatsapp-82efa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1056876714892:android:74b1b0e1469c652b",
+        "android_client_info": {
+          "package_name": "whatsappandroid.webativa.com.whatsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMnTn0nStAmcjkHt28KHFCLCmD1ydkC2M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -40,12 +40,25 @@ const Historico = ({ navigation }) => {
   const auth = getAuth();
   const userLogado = auth.currentUser;
 
+  const [isFetching, setIsFetching] = useState(false);
+
   const { register, formState: { errors }, handleSubmit, control, setValue, watch } = useForm();
 
   useEffect(() => {
-    console.log('historico ', historico, typeof historico)
-    historicoCorridas(user.id)
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      // alert('aqui')
+      historicoCorridas(user.id)
+    });
+
+    console.log('historico ', historico)
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
+  
+  // useEffect(() => {
+  //   console.log('historico ', historico, typeof historico)
+  //   historicoCorridas(user.id)
+  // }, []);
 
 
   function abrirModal(){
@@ -128,13 +141,17 @@ const Historico = ({ navigation }) => {
 
 
   const convertDate = (userDate) => {
-    return new Date(userDate.seconds*1000).toLocaleDateString()
+    const newDate = new Date(userDate.seconds*1000)
+    const newDateFormated = format(newDate, 'dd/MM/yy HH:mm')
+    // console.log('format', newDateFormated)
+    // return new Date(userDate.seconds*1000).toLocaleDateString()
+    return newDateFormated
   }
 
   function definirVeiculo(item){
     for (let i = 0; i < item.length; i++) {
       const element = item[i];
-      console.log('Veiculo ', element)
+      // console.log('Veiculo ', element)
       if(element.status){
         return {
           ano: element.ano,
@@ -147,6 +164,27 @@ const Historico = ({ navigation }) => {
       }
     }
   }
+  
+  const fetchData = () => {
+    historicoCorridas(user.id)
+    setIsFetching(false);
+  };
+
+  const onRefresh = () => {
+    setIsFetching(true);
+    fetchData()
+  };
+
+  function definirAceite(value){
+    if(value){
+      return 'Aceitou'
+    }else if( !value ){
+      return 'Cancelado'
+    }else{
+      return 'Pendente'
+    }
+  }
+
 
  
   return (
@@ -195,24 +233,43 @@ const Historico = ({ navigation }) => {
                   }}
                   data={historico} 
                   renderItem={({item}) => 
-                    <Box borderBottomWidth="1" _dark={{borderColor: "gray.600"}} borderColor="coolGray.200" pl="4" pr="5" py="2">
+                    <Box 
+                      borderBottomWidth="1" 
+                      borderLeftWidth="4"
+                      borderLeftColor={item.data.aceite ? 'success.600' : 'error.700'}
+                      paddingLeft="1"
+                      _dark={{borderColor: "gray.600"}} 
+                      borderColor="coolGray.200" 
+                      pl="4" 
+                      pr="5" 
+                      py="2"
+                      marginBottom={2}
+                      // backgroundColor='coolGray.100'
+                      backgroundColor={item.data.status === 'Aberto' ? 'teal.100' : 'coolGray.100'}
+                    >
                         <TouchableOpacity
                            onPress={() => {
                             setSelected(item)
                             setShowModal(!showModal)
                            }}
                         >
-                          <HStack space={3} justifyContent="space-between" alignItems={'center'}>
+                          <HStack 
+                            space={3} 
+                            justifyContent="space-between" 
+                            alignItems={'center'}
+                            
+                            backgroundColor={'red'}
+                          >
                             <Avatar size="48px" source={{
                               uri: item.data.dadosCorrida.picture
                             }} />
                             <VStack>
                               <Text>
-                                {definirVeiculo(item.data.dadosCorrida.veiculos).categoria}
+                                {item.data.dadosCorrida.veiculos[0].ategoria}{' '}({definirAceite(item.data.aceite)})
                               </Text>
                               <Text style={{fontWeight: 'bold'}}>
-                                {definirVeiculo(item.data.dadosCorrida.veiculos).modelo}{'/'}
-                                {definirVeiculo(item.data.dadosCorrida.veiculos).placa}
+                                {item.data.dadosCorrida.veiculos[0].modelo}{'/'}
+                                {item.data.dadosCorrida.veiculos[0].placa}
                               </Text>
                               {/* <Text style={{overflow: 'hidden', width: 250}} color="coolGray.600" _dark={{color: "warmGray.200"}} numberOfLines={1}>
                                 De: {item.data.yourLocation}
@@ -227,6 +284,23 @@ const Historico = ({ navigation }) => {
                               {convertDate(item.data.data)}
                             </Text>
                           </HStack>
+                          <HStack space={3}marginTop={1} padding={1} justifyContent="center" alignItems={'center'}>
+                              {item.data.status === 'Aberto' && (
+                                <Text>
+                                  Aguardando o motorista
+                                </Text>
+                              )}
+                              {item.data.status === 'Finalizado' && (
+                                <Text>
+                                  Esta corrida já foi finalizada
+                                </Text>
+                              )}
+                              {item.data.status === 'Cancelado' && (
+                                <Text>
+                                  O Motorista cancelou esta corrida
+                                </Text>
+                              )}
+                          </HStack>
                           {item.data.aceite === null && (
                             <HStack space={3}marginTop={1} padding={1} justifyContent="center" alignItems={'center'}>
                               <Text>
@@ -238,6 +312,8 @@ const Historico = ({ navigation }) => {
                     </Box>
                   }  
                   keyExtractor={item => item.id} 
+                  onRefresh={onRefresh}
+                  refreshing={isFetching}
                 />
               )}
               {!historico && (

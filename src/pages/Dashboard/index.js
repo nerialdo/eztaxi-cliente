@@ -58,7 +58,7 @@ const Dashboard = ({ navigation, route }) => {
 
   return (
     <>
-      <View style={{
+      {/* <View style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -99,7 +99,7 @@ const Dashboard = ({ navigation, route }) => {
                   )}
               </TouchableOpacity>
           )}
-      </View>
+      </View> */}
       <Map handleMenuTop={handleMenuTop} handleMenuTop2={handleMenuTop2} navigation={navigation}/>
       {showMenu && (
         <MyMenu navigation={navigation} rotasTelas={rotasTelas} />

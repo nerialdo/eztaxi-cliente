@@ -48,6 +48,7 @@ const Map = ({ navigation, handleMenuTop, handleMenuTop2 }) => {
     // );
 
     useEffect(() => {
+        console.log('regionregionregion', region)
         const unsubscribe = navigation.addListener('focus', () => {
             setTelaConfirmacao(false)
         });
@@ -104,13 +105,13 @@ const Map = ({ navigation, handleMenuTop, handleMenuTop2 }) => {
         setTelaConfirmacao(false)
     }
 
-    const salvarPedido = (dadosCorrida, valor, distancia, destination, duration, yourLocation) => {
-        salvarOrder(dadosCorrida, valor, distancia, destination, duration, user, yourLocation)
+    const salvarPedido = (dadosCorrida, valor, distancia, destination, duration, yourLocation, region) => {
+        salvarOrder(dadosCorrida, valor, distancia, destination, duration, user, yourLocation, region)
     }
 
-    const abrirConfirmacao = ( dadosCorrida, valor, distancia, destination, duration, yourLocation) => {
-        console.log('dadossoo', dadosCorrida, valor, distancia, destination, duration, yourLocation)
-        salvarPedido(dadosCorrida, valor, distancia, destination, duration, yourLocation)
+    const abrirConfirmacao = ( dadosCorrida, valor, distancia, destination, duration, yourLocation, region) => {
+        console.log('dadossoo', dadosCorrida, valor, distancia, destination, duration, yourLocation, region)
+        salvarPedido(dadosCorrida, valor, distancia, destination, duration, yourLocation, region)
         // setShowModal(!showModal)
         handleBack()
         // handleMenuTop()
